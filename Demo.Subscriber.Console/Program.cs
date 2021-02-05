@@ -5,6 +5,11 @@
     using System.Threading.Tasks;
     using System;
 
+    /// <summary>
+    /// SOURCE:
+    /// https://www.rabbitmq.com/dotnet-api-guide.html
+    /// https://www.rabbitmq.com/tutorials/tutorial-one-dotnet.html
+    /// </summary>
     class Program
     {
         public static async Task Main(string[] args)

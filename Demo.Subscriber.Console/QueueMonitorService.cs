@@ -22,7 +22,7 @@
         private bool disposedValue;
         private Timer _timer;
 
-        public QueueMonitorService() 
+        public QueueMonitorService()
         {
         }
 
@@ -44,33 +44,51 @@
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// SOURCE:
+        /// https://www.rabbitmq.com/dotnet-api-guide.html
+        /// https://www.rabbitmq.com/tutorials/tutorial-one-dotnet.html
+        /// </summary>
         private void DoWork(object state)
         {
             Console.WriteLine($"{ nameof(QueueMonitorService)} is working.");
             Console.WriteLine("Consuming Queue Now");
 
-            // SOURCE: https://www.rabbitmq.com/tutorials/tutorial-one-dotnet.html
-            ConnectionFactory factory = new ConnectionFactory() { HostName = "rabbitmq", Port = 5672 };
-            factory.UserName = "guest";
-            factory.Password = "guest";
+            ConnectionFactory factory = new ConnectionFactory()
+            {
+                HostName = "rabbitmq",
+                Port = 5672,
+                UserName = "guest",
+                Password = "guest"
+            };
 
             using IConnection conn = factory.CreateConnection();
+
+            Console.WriteLine($"Connection IsOpen: {conn.IsOpen}");
+
             using IModel channel = conn.CreateModel();
-            channel.QueueDeclare(queue: "hello",
-                                    durable: false,
-                                    exclusive: false,
-                                    autoDelete: false,
-                                    arguments: null);
+
+            /********************************************************************************************************
+             * If the queue doesn't exists, it will be created
+             * If it already exists, then no effect on the existing queue
+            *********************************************************************************************************/
+            channel.QueueDeclare(queue: "hello", // Queue name
+                                    durable: false, // The queue will survive (recreated) a broker restart, not messages
+                                    exclusive: false, // Used by only one connection and the queue will be deleted when that connection closes
+                                    autoDelete: false, // Queue that has had at least one consumer is deleted when last consumer unsubscribes
+                                    arguments: null); // optional; used by plugins and broker-specific features such as message TTL, queue length limit, etc
 
             var consumer = new EventingBasicConsumer(channel);
 
+            // Receive event handler
             consumer.Received += (model, ea) =>
             {
-                var body = ea.Body;
-                var message = Encoding.UTF8.GetString(body.ToArray());
+                var body = ea.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
                 Console.WriteLine(" [x] Received from Rabbit: {0}", message);
             };
 
+            // Receives messages delivered from the server
             channel.BasicConsume(queue: "hello",
                                     autoAck: true,
                                     consumer: consumer);
@@ -82,7 +100,7 @@
             {
                 // TODO: dispose managed state (managed objects)
                 if (disposing)
-                {                    
+                {
                     /*  Call Dispose() on other objects owned by this instance.
                         You can reference other finalizable objects here. */
 
@@ -108,6 +126,6 @@
             Dispose(disposing: true);
             // Prevent finalizer from running.
             GC.SuppressFinalize(this);
-        }      
+        }
     }
 }
