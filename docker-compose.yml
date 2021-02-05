@@ -20,6 +20,8 @@ services:
       context: .
       dockerfile: Demo.Subscriber.Console/Dockerfile
     restart: always
+    #command:
+    # - "sleep 30s;"
     depends_on:
      - "rabbitmq"
      - "demo.publisher.api"

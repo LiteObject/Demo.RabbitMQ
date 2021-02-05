@@ -30,7 +30,12 @@
         {
             Console.WriteLine($"{nameof(QueueMonitorService)} is starting.");
 
-            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+            /*********************************************************************************************************************
+             dueTime: The amount of time to delay before the callback is invoked. Specify InfiniteTimeSpan to prevent the timer from starting. Specify Zero to start the timer immediately.
+             period: The time interval between invocations of callback. Specify InfiniteTimeSpan to disable periodic signaling. 
+            *********************************************************************************************************************/
+
+            _timer = new Timer(callback: DoWork, state: null, dueTime: TimeSpan.Zero, period: TimeSpan.FromSeconds(10));
 
             return Task.CompletedTask;
         }

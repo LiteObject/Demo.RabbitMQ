@@ -29,6 +29,7 @@
             .ConfigureServices((hostContext, services) =>
             {
                 services.AddHostedService<QueueMonitorService>();
+                services.AddHostedService<GreetingsService>();
             });
     }
 }

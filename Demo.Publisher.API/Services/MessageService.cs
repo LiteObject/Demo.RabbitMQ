@@ -9,12 +9,13 @@ namespace Demo.Publisher.API.Services
     /// </summary>
     public class MessageService : IMessageService, IDisposable
     {
+        private readonly ConnectionFactory _factory;
         private readonly IConnection _conn;
         private readonly IModel _channel;
 
         public MessageService()
         {
-            var factory = new ConnectionFactory
+            _factory = new ConnectionFactory
             {
                 HostName = "rabbitmq", Port = 5672, UserName = "guest", Password = "guest"
             };
@@ -27,7 +28,7 @@ namespace Demo.Publisher.API.Services
                  * connection per operation, e.g. a message published, is unnecessary and strongly
                  * discouraged as it will introduce a lot of network round-trips and overhead.
                  ********************************************************************************/
-                _conn = factory.CreateConnection(); // IConnection represents an AMQP connection
+                _conn = _factory.CreateConnection(); // IConnection represents an AMQP connection
                 _channel = _conn.CreateModel(); // AMQP data channel and provides the AMQP operations
 
                 /********************************************************************************************************
